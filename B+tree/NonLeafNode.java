@@ -13,7 +13,6 @@ public class NonLeafNode{
 	ArrayList<NonLeafElement> data;
 	NonLeafNode(){
 	}
-
 	NonLeafNode(int capa,boolean root){
 		this.root=root;
 		if(root) NonLeafNode.rootNode=this;
@@ -22,7 +21,6 @@ public class NonLeafNode{
 		this.nextNode=null;
 		this.previousNode=null;
 	}
-
 	public static void rangeSearch(int start,int end, NonLeafNode root) {
 		LeafNode startNode=(LeafNode)searchKey_Node(start,root);
 		for(int i=0;i<startNode.ldata.size();i++) {
@@ -31,7 +29,6 @@ public class NonLeafNode{
 			}
 		}
 		nextRangeSearch(start,end,(LeafNode)startNode.nextNode);
-
 	}
 	private static void nextRangeSearch(int start,int end,LeafNode node) {
 		for(int i=0;i<node.ldata.size();i++) {
@@ -58,8 +55,9 @@ public class NonLeafNode{
 					where=root.rightNode;
 				}
 			}
-
-			return searchKey_Node(key,where);
+			if(where!=null)
+				return searchKey_Node(key,where);
+			else return LeafNode.first;
 		}
 		else {
 			return (LeafNode)root;
@@ -75,7 +73,7 @@ public class NonLeafNode{
 				if(flag&&root.data.get(i).getKey()>key) {
 					where=root.data.get(i).leftNode;
 					flag=false;
-					break;
+
 				}
 				else if(flag&&i==size-1) {
 					where=root.rightNode;
@@ -97,8 +95,6 @@ public class NonLeafNode{
 			return Integer.MIN_VALUE;
 		}
 	}
-
-	
 	//non-leaf node의 split
 	//node는 child에서 새로 생긴 노드를 받음
 	public void split() {
@@ -126,7 +122,7 @@ public class NonLeafNode{
 		newnode.rightNode.parentNode=newnode;
 		this.rightNode=newnode.data.get(0).leftNode;
 		this.rightNode.parentNode=this;
-		
+
 		if(this.root) {
 			NonLeafNode topNode=new NonLeafNode(LeafNode.capacity,true);
 			topNode.data.add(new NonLeafElement(newnode.data.remove(0).getKey(),this));
@@ -172,113 +168,121 @@ public class NonLeafNode{
 	}
 	public static void merge(NonLeafNode cur) {
 		//root가 아니면 parent에서 가져오기
-		NonLeafNode parent=cur.parentNode;
-		NonLeafNode next=cur.nextNode;
-		NonLeafNode previous=cur.previousNode;
-		int size=parent.data.size();
-		if(!cur.root) {
-			//next가 있고 합쳤을 때 overflow가 발생하지 않는 선에서 merge작용
-			//parent도 서로 같아야함.
-			if(next!=null&&isNodeCanMerge(cur,next)) {
-				for(int i=0;i<size;i++) {
-					if(parent.data.get(i).leftNode==cur) {
-						boolean first=true;
-						while(cur.data.size()>0) {
-							if(first) {
-								next.data.add(0,new NonLeafElement(parent.data.get(i).getKey(),cur.rightNode));
-								first=false;
-							}
-							else {
-								cur.data.get(cur.data.size()-1).leftNode.parentNode=next;
-								next.data.add(0,cur.data.remove(cur.data.size()-1));
-							}
-						}
-						parent.data.remove(i);
 
-						if(parent.data.size()==0) {
-							next.root=true;
-							NonLeafNode.rootNode=next;
-							parent=null;
-							next.parentNode=null;
-						}
-						if(cur.previousNode!=null) {
-							cur.previousNode.nextNode=next;
-							next.previousNode=cur.previousNode;
-						}
-						cur=null;
-						break;
-					}
-				}
-			}
-			//회전방식 이용 merge했을 때 overflow가 발생시
-			else if(next!=null&&next.data.size()+cur.data.size()>NonLeafNode.capacity-1&&next.parentNode==cur.parentNode) {
+		if(!cur.root) {
+			NonLeafNode next=cur.nextNode;
+			NonLeafNode previous=cur.previousNode;
+			NonLeafNode parent=cur.parentNode;
+			int size=parent.data.size();
+			//회전방식 이용(next 노드에서 가져와도 underflow가 발생하지 않을 때)
+			if(next!=null&&isNodeCanBring(cur,next)) {
 				for(int i=0;i<size;i++) {
 					if(parent.data.get(i).leftNode==cur) {
 						NonLeafElement temp=next.data.remove(0);
 						NonLeafElement parent_node=parent.data.get(i);
 						cur.data.add(new NonLeafElement(parent_node.getKey(),cur.rightNode));
 						cur.rightNode=temp.leftNode;
-						if(cur.rightNode.getClass().getName().equals("NonLeafNode")) {
-							LeafNode.check_keychange(cur.rightNode.data.get(0).getKey(),cur,cur.rightNode);
-						}
-						else {
-							LeafNode.check_keychange(((LeafNode)cur.rightNode).ldata.get(0).getKey(),cur,cur.rightNode);
-						}
+
+						changeParentNode(temp.leftNode,cur);
+//						if(cur.rightNode.getClass().getName().equals("LeafNode")) {
+//							LeafNode temp_node=(LeafNode)cur.rightNode;
+//							LeafNode.check_keychange(temp_node.ldata.get(0).getKey(), cur, cur.rightNode);
+//						}
 						parent_node.setKey(temp.getKey());
+						if(cur.rightNode.getClass().getName().equals("LeafNode")) 
+							cur.data.get(cur.data.size()-1).setKey(((LeafNode)cur.rightNode).ldata.get(0).getKey());
+
+						break;
+					}
+				}
+			}
+			//부모노드 하나 데려와서 merge
+			else if(next!=null&&next.parentNode==parent) {
+				for(int i=0;i<size;i++) {
+					if(parent.data.get(i).leftNode==cur) {
+						next.data.add(0,new NonLeafElement(parent.data.get(i).getKey(),cur.rightNode));
+						changeParentNode(cur.rightNode,next);
+						while(cur.data.size()>0) {
+							changeParentNode(cur.data.get(cur.data.size()-1).leftNode,next);
+							next.data.add(0,cur.data.remove(cur.data.size()-1));
+						}
+						parent.data.remove(i);
+						if(cur.previousNode!=null) {
+							cur.previousNode.nextNode=next;
+							next.previousNode=cur.previousNode;
+						}
+						if(parent.root&&parent.data.size()==0) {
+							next.parentNode=null;
+							next.root=true;
+							NonLeafNode.rootNode=next;
+							parent=null;
+						}
+						if(parent!=null&&isUnderflow(parent)) {
+							merge(parent);
+						}
 						break;
 					}
 				}
 			}
 			//해당 레벨의 끝노드에서 걸림
-			//전 노드와 합쳤을 때 overflow가 발생하지 않을 때 ->합침
-			else if(previous!=null&&isNodeCanMerge(cur,previous)) {
-				NonLeafElement last_node=parent.data.get(parent.data.size()-1);
-				boolean first=true;
+			//회전방식으로 전노드의 데이터 하나 가져오기
+			else if(previous!=null&&isNodeCanBring(cur,previous)) {
+				NonLeafElement last=parent.data.get(parent.data.size()-1);
+				cur.data.add(0,new NonLeafElement(last.getKey(),previous.rightNode));
+				changeParentNode(previous.rightNode,cur);
+				previous.rightNode=previous.data.get(previous.data.size()-1).leftNode;
+				last.setKey(previous.data.remove(previous.data.size()-1).getKey());
+				//child가 leafNode면 key변경
+				if(cur.rightNode.getClass().getName().equals("LeafNode")) {
+					//1은 minimum 노드의 수가 1일 경우 대비
+					if(cur.data.size()==1) 
+						cur.data.get(0).setKey(((LeafNode)cur.rightNode).ldata.get(0).getKey());
+
+					else cur.data.get(0).setKey(((LeafNode)cur.data.get(1).leftNode).ldata.get(0).getKey());
+				}
+			}
+			//부모노드의 element하나 가져와서 merge
+			else if(previous!=null&&previous.parentNode==cur.parentNode) {
+				cur.data.add(0,new NonLeafElement(parent.data.get(size-1).getKey(),previous.rightNode));
+				changeParentNode(previous.rightNode,cur);
 				while(previous.data.size()>0) {
-					if(first) {
-						cur.data.add(0,new NonLeafElement(last_node.getKey(),previous.rightNode));
-						first=false;
-					}
-					else {
-						previous.data.add(0,cur.data.remove(cur.data.size()-1));
-					}
+					changeParentNode(previous.data.get(previous.data.size()-1).leftNode,cur);
+					cur.data.add(0,previous.data.remove(previous.data.size()-1));
 				}
-				parent.data.remove(last_node);
-				if(parent.data.size()==0) {
-					cur.root=true;
-					NonLeafNode.rootNode=cur;
-					parent=null;
-				}
+				parent.data.remove(parent.data.size()-1);
 				if(previous.previousNode!=null) {
 					previous.previousNode.nextNode=cur;
 					cur.previousNode=previous.previousNode;
 				}
-				previous=null;
+				if(parent.root&&parent.data.size()==0) {
+					cur.root=true;
+					parent=null;
+					cur.parentNode=null;
+					NonLeafNode.rootNode=cur;
+				}
+				if(parent!=null&&isUnderflow(parent)) 
+					merge(parent);
+				
 			}
-			//이전 노드와 합쳐질 경우 overflow가 발생시->하나의 element만 bring하기(회전)
-			else if(previous!=null&&previous.parentNode==cur.parentNode) {
-				NonLeafElement last=parent.data.get(parent.data.size()-1);
-				cur.data.add(new NonLeafElement(last.getKey(),previous.rightNode));
-				previous.rightNode=previous.data.get(previous.data.size()-1).leftNode;
-				last.setKey(previous.data.remove(previous.data.size()-1).getKey());
-			}
-		}
-		//merge하려고했더니 root다.
-		else {
-			if(parent.data.size()==0)
-				parent=null;
 		}
 	}
+	private static void changeParentNode(NonLeafNode child,NonLeafNode parent) {
+		if(child.getClass().getName().equals("LeafNode")) 
+			((LeafNode)child).parentNode=parent;
+		
+		else 
+			child.parentNode=parent;
+		}
+	
 	public static NonLeafNode read(Scanner scan,NonLeafNode root,NonLeafNode node,int count,int root_size,ArrayList<NonLeafNode> parent_list,
 			boolean first,NonLeafNode right) {
-		
 		String leaf=scan.next();
-		if(leaf.equals("NonLeaf")) {
+		if(leaf.equals("N")) {
 			NonLeafNode newnode=new NonLeafNode(NonLeafNode.capacity,false);
-			int size=scan.nextInt();
+			int size=Integer.parseInt(scan.next());
 			//정보 넣기
 			for(int i=0;i<size;i++) {
-				newnode.data.add(new NonLeafElement(scan.nextInt(),null));
+				newnode.data.add(new NonLeafElement(Integer.parseInt(scan.next()),null));
 			}
 			parent_list.add(newnode);
 			if(node!=null) {
@@ -303,11 +307,11 @@ public class NonLeafNode{
 		else {
 			return null;
 		}
-		
+
 	}
 	public <P extends NonLeafNode>void print(PrintWriter print) {
 		if(this.getClass().getName().equals("NonLeafNode")) {
-			print.print("NonLeaf "+this.data.size()+" ");
+			print.print("N "+this.data.size()+" ");
 			for(int i=0;i<this.data.size();i++) {
 				print.print(this.data.get(i).getKey()+" ");
 			}
@@ -318,7 +322,7 @@ public class NonLeafNode{
 		}
 		else {
 			LeafNode node=(LeafNode)this;
-			print.print("Leaf "+" "+node.ldata.size()+" ");
+			print.print("L "+node.ldata.size()+" ");
 			for(int i=0;i<node.ldata.size();i++) {
 				print.print(node.ldata.get(i).getKey()+" "+node.ldata.get(i).getValue()+" ");
 			}
@@ -329,15 +333,12 @@ public class NonLeafNode{
 		}
 	}
 	//둘이 합쳐도 overflow가 생기지 않게 조정
-	public static boolean isNodeCanMerge(NonLeafNode cur,NonLeafNode other) {
-		if(cur.data.size()+other.data.size()<=LeafNode.capacity-2&&cur.parentNode==other.parentNode)return true;
+	public static boolean isNodeCanBring(NonLeafNode cur,NonLeafNode other) {
+		if(other.data.size()-1>=(NonLeafNode.capacity-1)/2&&cur.parentNode==other.parentNode)return true;
 		else return false;
 	}
 	public static boolean isUnderflow(NonLeafNode node) {
 		if((NonLeafNode.capacity-1)/2>node.data.size())return true;
 		else return false;
 	}
-	
-	
-
 }

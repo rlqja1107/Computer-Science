@@ -15,7 +15,6 @@ public class NonLeafElement {
 	public void setKey(int key) {
 		this.key=key;
 	}
-	
 	public int getKey() {
 		return this.key;
 	}

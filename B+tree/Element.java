@@ -16,6 +16,4 @@ public class Element {
 	public int getValue() {
 		return this.value;
 	}
-		
-	
 }
