@@ -5,7 +5,7 @@
 ## 데이터베이스시스템  
 ### B+ tree  
 * **Code**  
-[Code](https://github.com/rlqja1107/DatabaseSystem/tree/master/B%2Btree)  
+[Code](https://github.com/rlqja1107/Computer-Science/tree/master/Database%20System/B%2Btree)  
 * Wiki(Report)  
 [Report](https://github.com/rlqja1107/DatabaseSystem/wiki/B-tree-Implementation)
 ### 객체지향 프로그래밍  
