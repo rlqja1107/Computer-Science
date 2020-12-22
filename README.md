@@ -7,12 +7,19 @@
 * **Code**  
 [Code](https://github.com/rlqja1107/Computer-Science/tree/master/Database%20System/B%2Btree)  
 * Wiki(Report)  
-[Report](https://github.com/rlqja1107/DatabaseSystem/wiki/B-tree-Implementation)
-### 객체지향 프로그래밍  
+[Report](https://github.com/rlqja1107/DatabaseSystem/wiki/B-tree-Implementation)  
+### 데이터베이스를 활용한 어플리케이션 제작  
+활용 언어 : Python, Mysql  
+**음악 스트리밍 어플리케이션 제작** 
+[Report Of Application Programming](https://github.com/rlqja1107/Computer-Science/blob/master/Database%20System/Application%20Programming/Database_Report.pdf)  
+[Code Of Application](https://github.com/rlqja1107/Computer-Science/tree/master/Database%20System/Application%20Programming)  
+[Dump File](https://github.com/rlqja1107/Computer-Science/blob/master/Database%20System/Application%20Programming/soundtrack.sql)  
+
+## 객체지향 프로그래밍  
 * **Code**  
 [Code](https://github.com/rlqja1107/Computer-Science/tree/master/Object-Oriented%20Programming)  
 각 프로젝트마다의 자세한 설명은 **pdf**로 첨부해놓았다.  
-### 컴퓨터 네트워크  
+## 컴퓨터 네트워크  
 #### Assignment 1  
 기본적인 FTP 프로토콜 명령어의 구현. Server와 Client 간의 명령어 교환 및 데이터 교환  
 **단**, 이 때는 Data 전송 중에 Packet Loss가 발생하지 않다는 가정 하에서 구현  
