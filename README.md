@@ -10,7 +10,7 @@
 [Report](https://github.com/rlqja1107/DatabaseSystem/wiki/B-tree-Implementation)  
 ### 데이터베이스를 활용한 어플리케이션 제작  
 활용 언어 : Python, Mysql  
-**음악 스트리밍 어플리케이션 제작** 
+**음악 스트리밍 어플리케이션 제작**   
 [Report Of Application Programming](https://github.com/rlqja1107/Computer-Science/blob/master/Database%20System/Application%20Programming/Database_Report.pdf)  
 [Code Of Application](https://github.com/rlqja1107/Computer-Science/tree/master/Database%20System/Application%20Programming)  
 [Dump File](https://github.com/rlqja1107/Computer-Science/blob/master/Database%20System/Application%20Programming/soundtrack.sql)  
