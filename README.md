@@ -35,6 +35,6 @@ Timeout은 SR Protocol 상황 중 ack 메세지가 오지 않아 timeout event�
 * **Packet Loss**  
 Packet Loss는 SR Protocol 상황에서 네트워크 상에서 packet이 사라진 상황을 가정한다. Packet Loss 발생시에 Server도 packet을 받지 못하여 ack message를 보내지 못한다. 따라서, Packet Loss 발생시 timeout을 발생시켜 재전송을 유도하도록 한다.  
 SR Protocol 구현시 sequence number, buffer 등의 자세한 문제는 레포트를 참고하면 된다.  
-[Report of SR Protocol]()
+[Report of SR Protocol](https://github.com/rlqja1107/Computer-Science/blob/master/Computer-Network/FTP-SR%20Protocol%20%EA%B5%AC%ED%98%84/Assignment4_2_Network_2016032897.pdf)  
 
 
